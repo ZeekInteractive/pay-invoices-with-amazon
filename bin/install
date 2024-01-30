@@ -1,0 +1,28 @@
+#! /bin/bash
+
+# Usage, from project root directory:
+# 	bin/install
+
+OSNAME="$(uname -s)"
+if [[ "$OSNAME" = "Darwin" ]] # Darwin, Mac, Cygwin, MinGw, Git, etc.
+then
+	# Mac: Install https://brew.sh and composer if not available.
+	if ! command -v brew &> /dev/null
+	then
+		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	fi
+	if ! command -v composer &> /dev/null
+	then
+		brew install composer
+	fi
+fi;
+
+# Config composer.json to install for PHP 5.6.20.
+composer config platform.php 5.6.20
+
+# Update packages.
+composer update
+
+# Install without dev dependencies, -o optimize autoloader, -n no interaction.
+# If PHP dev dependencies are later needed, a install-dev should be created or command flag added.
+composer install --no-dev -o -n

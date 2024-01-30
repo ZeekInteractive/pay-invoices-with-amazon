@@ -1,0 +1,116 @@
+#! /bin/bash
+
+# Usage, from project root directory:
+# 	bin/phpcs
+
+# Running:
+#   bin/phpcs --add-all-ignores && bin/phpcs
+# ...will patch all reported lines with ignore commands specific to the reported rule, then re-run the report.
+
+PWD=$(pwd)
+OSNAME="$(uname -s)"
+SKIP_FILES="vendor,bin,*.min.js,*.min.css,amazon-pay-modal-init.js"
+
+if [[ "$OSNAME" = "Darwin" ]] # Darwin, Mac, Cygwin, MinGw, Git, etc.
+then
+	# Mac: Install https://brew.sh and composer if not available.
+	if ! command -v brew &> /dev/null
+	then
+		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	fi
+	if ! command -v composer &> /dev/null
+	then
+		brew install composer
+	fi
+
+	# @see https://github.com/WordPress/WordPress-Coding-Standards/wiki/Upgrade-Guide-to-WordPressCS-3.0.0-for-ruleset-maintainers
+	composer global require --dev wp-coding-standards/wpcs:"^3.0.0" --update-with-dependencies --with-dependencies --with-all-dependencies --no-interaction &> /dev/null
+
+	if ! command -v phpcs &> /dev/null
+	then
+		echo 'phpcs is not found. Try adding it to your executable path.'
+		echo 'e.g., add this line to ~/.bash_profile or ~/.zshrc:'
+		echo 'export PATH=$PATH:~/.composer/vendor/bin'
+		exit
+	fi
+
+	phpcs --config-set installed_paths "$HOME/.composer/vendor/phpcsstandards/phpcsextra,$HOME/.composer/vendor/phpcsstandards/phpcsutils,$HOME/.composer/vendor/wp-coding-standards/wpcs" &> /dev/null
+	phpcs --config-set default_standard WordPress-Extra &> /dev/null
+
+	cd "$PWD"
+fi;
+
+# Start with PHP Code Beautifier to avoid giving attention to formatting errors which can be fixed automatically.
+phpcbf --standard=ruleset.xml --ignore=vendor,bin,*.min.js,*.min.css,amazon-pay-modal-init.js .
+
+# Flags.
+add_all_ignores=false
+ignore_annotations=''
+
+for arg in "$@"; do
+	if [[ "$arg" == "--add-all-ignores" ]]; then
+		add_all_ignores=true
+		break
+	fi
+	if [[ "$arg" == "--ignore-annotations" ]]; then
+		ignore_annotations='--ignore-annotations'
+		break
+	fi
+done
+
+# Line-by-line report.
+# --report=code to show code context.
+#    @see https://github.com/squizlabs/PHP_CodeSniffer/wiki/Reporting
+# -s to output full rule names.
+# sed:
+#    - File paths relative to current directory.
+#    - Pointer to line containing error.
+#    - Remove entire line if it's just a horizonal lines of dashes.
+#    - Add space before LINE
+#    - Change (WordPress.Error.Name) format to #️⃣ WordPress.Error.Name
+#    - Highlight the errored line in orange.
+#    - Replace WARNING and ERROR with ⚠️ and ❗️.
+phpcs -s --report=code --standard=ruleset.xml --ignore="$SKIP_FILES" $ignore_annotations . \
+	| sed "s|^FILE: $PWD|🗂️  .|" \
+	| sed "s|^>> |➡️  |" \
+	| sed "/^----*$/d" \
+	| sed '/^LINE/ i\
+
+'   | sed -E 's/\((Squiz\.[A-Za-z0-9.]+)\)/   #️⃣  \1/g' \
+	| sed -E 's/\((WordPress\.[A-Za-z0-9.]+)\)/   #️⃣  \1/g' \
+	| awk '/^➡️ / { printf "\033[38;5;208m%s\033[0m\n", $0; next } 1' \
+	| sed 's/ WARNING / ⚠️  /g' \
+	| sed 's/ ERROR / ❗️  /g' \
+
+# Count by rule.
+phpcs -s --report=source --standard=ruleset.xml --ignore="$SKIP_FILES" $ignore_annotations . \
+	| sed 's/PHP CODE SNIFFER VIOLATION SOURCE SUMMARY/SUMMARY/' \
+	| sed "/^----*$/d"
+
+# Output or run commands to add comment to ignore PHPCS on relevant lines.
+#    @see https://github.com/squizlabs/PHP_CodeSniffer/wiki/Advanced-Usage#ignoring-parts-of-a-file
+#    e.g., // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
+if $add_all_ignores; then
+	phpcs --report=json --standard=ruleset.xml --ignore="$SKIP_FILES" . \
+		| php ./bin/phpcs-commands-to-add-ignore-comments.php --execute \
+		| /bin/bash
+
+	echo -e "All warnings ignored with comments. Inspect with \033[38;5;208mgit diff\033[0m"
+else
+	if [[ "$SHELL" == *"zsh"* ]]; then
+		# We're in zsh... default config will cause copy-pasting commands with comments to fail.
+		if zsh -c 'setopt' | grep -q 'interactivecomments'; then
+			: # Interactive comments are enabled.
+		else
+			if ! grep -q 'setopt interactivecomments' "$HOME/.zshrc"; then
+				# Pasting comments will cause an error. Patch ~/.zshrc and let the user know.
+				echo 'setopt interactivecomments' >> "$HOME/.zshrc"
+				echo -e "Added \033[38;5;208msetopt interactivecomments\033[0m to \033[38;5;208m~/.zshrc\033[0m so commands with comments can be pasted into the terminal.\nOpen a new session to apply the setting."
+			fi
+		fi
+	fi
+	echo -e "Run \033[38;5;208m./bin/phpcs --add-all-ignores && ./bin/phpcs\033[0m to add comments for all remaining warnings and re-run the report."
+ 	phpcs --report=json --standard=ruleset.xml --ignore="$SKIP_FILES" . \
+		| php ./bin/phpcs-commands-to-add-ignore-comments.php
+fi

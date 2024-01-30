@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# Usage, from project root directory:
+# 	bin/package
+
+zip_name="piwa.zip"
+unzipped_dir_name="${zip_name%.*}"
+
+if [[ ! -f "piwa.php" ]]
+then
+    echo 'Please run bin/package from the project root directory.'
+    exit
+fi
+
+# Reset and update vendor to no-dev.
+./bin/install
+
+rm -f "$zip_name"
+
+# Git-tracked files.
+files=$(git ls-files)
+
+# Git-tracked files in the root directory.
+root_files=$(echo "$files" | grep -v '/')
+
+# Extract unique top-level directory names from the list of files.
+directories=$(echo "$files" | grep '/' | cut -d '/' -f 1 | sort -u)
+
+# Root-level files and Git-tracked top-level directories.
+files_and_directories=$(echo -e "$root_files\n$directories" | sort -u)
+
+# Exclude path patterns from package-exclude.txt, such as files starting with "." or ending in ".zip".
+filtered_files=$(echo "$files_and_directories" | grep -v -f ./bin/package-exclude.txt)
+
+# Split the filtered_files string into an array
+IFS=$'\n' read -d '' -r -a filtered_array <<< "$filtered_files"
+
+# Generate a .zip containing the resulting non-excluded git-tracked paths.
+git archive --format=zip -9 -o "$zip_name" --prefix="$unzipped_dir_name/" HEAD -- "${filtered_array[@]}"
+
+# Add non-git-tracked files and directories to the .zip, such as "vendor".
+mkdir -p "$unzipped_dir_name";
+mv vendor "$unzipped_dir_name/vendor"
+zip -ur "$zip_name" "$unzipped_dir_name/vendor"
+mv "$unzipped_dir_name/vendor" vendor
+rm -rf "$unzipped_dir_name"
+
+# Output information about the zip
+ls -lsah "$zip_name"
