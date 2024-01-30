@@ -1,7 +1,0 @@
-^\..*$
-^bin$
-^vendor$
-^composer\.json$
-^composer\.lock$
-^ruleset\.xml$
-^.*\.zip$

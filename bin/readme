@@ -1,6 +1,0 @@
-#! /bin/bash
-
-PWD=$(pwd)
-php "$PWD/bin/readme-parser/readme.php" > docs/index.html
-
-open docs/index.html
