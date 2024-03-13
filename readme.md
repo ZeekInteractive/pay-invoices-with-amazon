@@ -2,6 +2,8 @@
 
 Plugin description and use can be found in [readme.txt](readme.txt).
 
+A thorough description of how to install and use the plugin can be found [here](https://zeekinteractive.github.io/pay-invoices-with-amazon-internal/).
+
 Packaged releases can be found on [releases](https://github.com/ZeekInteractive/piwa/releases).
 
 The latest release can be installed from WP CLI with:
