@@ -3,7 +3,7 @@
 Plugin Name: Pay Invoices With Amazon
 Author: Zeek
 Author URI: https://zeek.com/
-Plugin URI: https://github.com/zeekinteractive/piwa/
+Plugin URI: https://github.com/ZeekInteractive/pay-invoices-with-amazon/
 Contributors: zengy, aaronholbrook, ivande, pdclark
 Tags: amazon pay, payments, checkout, online payments, ecommerce, store
 Stable tag: 1.3
@@ -26,7 +26,7 @@ The plugin includes:
 - **Enhanced Security** by leveraging Amazon’s proven payment processing infrastructure.
 - **One-Click Checkout** for customers who want a fast and simple payment experience.
 
-Please ensure that your WordPress installation meets the required PHP version (5.6 or higher) and WordPress version (5.6 or higher). Visit our [GitHub repository](https://github.com/zeekinteractive/piwa/) for further details, documentation, and support.
+Please ensure that your WordPress installation meets the required PHP version (5.6 or higher) and WordPress version (5.6 or higher). Visit our [GitHub repository](https://github.com/ZeekInteractive/pay-invoices-with-amazon/) for further details, documentation, and support.
 
 **Creating Invoices**
 
@@ -53,7 +53,7 @@ To receive payments, connect the plugin to your Amazon Pay account using one of 
 
 Once payments are processed, individual payments will be authorized by Amazon within 24 hours. After that period, click the linked "Reference ID" for the payment to go to Seller Central. Clicking "Collect Payment" in Seller Central will transfer the authorized funds.
 
-Further information can be found at [Finding your Amazon Pay keys and IDs](https://pay.amazon.com/help/202022560) and in the [GitHub repository](https://github.com/zeekinteractive/piwa/).
+Further information can be found at [Finding your Amazon Pay keys and IDs](https://pay.amazon.com/help/202022560) and in the [GitHub repository](https://github.com/ZeekInteractive/pay-invoices-with-amazon/).
 
 **Using as a Shortcode**
 
@@ -97,7 +97,7 @@ Yes, this plugin is free to use, but transactions processed with Amazon Pay will
 
 = Where can I get support? =
 
-For support, please post an issue to the [GitHub repository](https://github.com/zeekinteractive/piwa/issues/).
+For support, please post an issue to the [GitHub repository](https://github.com/ZeekInteractive/pay-invoices-with-amazon/issues/).
 
 = What are the prerequisites for using this plugin? =
 
