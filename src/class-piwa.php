@@ -447,7 +447,7 @@ class PIWA {
 	public function maybe_get_payment() {
 		if ( array_key_exists( 'amazonCheckoutSessionId', $_GET ) && array_key_exists( 'ap-payment-id', $_GET ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$checkout_session_id                              = sanitize_key( $_GET['amazonCheckoutSessionId'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$payment_source_id                                = intval( explode( '-', (string) $_GET['ap-payment-id'] )[0] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$payment_source_id                                = intval( explode( '-', sanitize_text_field($_GET['ap-payment-id']) )[0] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			list($payment_source_id, $payment_source_counter) = explode( '-', sanitize_key( $_GET['ap-payment-id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$payments = get_posts(
 				[

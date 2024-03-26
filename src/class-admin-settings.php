@@ -75,6 +75,8 @@ class Admin_Settings {
 				$e->getMessage()
 			);
 
+            // Before calling update_option we are calling register_option_sanitization_callbacks() to ensure the sanitize callback is registered.
+            // The sanitize method on this class is used to sanitize the options by data type before saving them to the database
 			update_option(
 				$this->option_key,
 				array_merge(
@@ -529,9 +531,11 @@ class Admin_Settings {
 		if (
 			isset( $_POST['action'] )
 			&& 'update' === $_POST['action']
-			&& wp_verify_nonce( $_POST['_wpnonce'], sprintf( '%s-options', $this->option_key ) )
+			&& wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['_wpnonce'] ) ), sprintf( '%s-options', $this->option_key ) )
 			&& ! empty( $_POST['piwa'] )
 		) {
+            // Before calling update_option we are calling register_option_sanitization_callbacks() to ensure the sanitize callback is registered.
+            // The sanitize method on this class is used to sanitize the options by data type before saving them to the database
 			update_option( $this->option_key, $_POST['piwa'] );
 		}
 
@@ -975,14 +979,14 @@ class Admin_Settings {
 		printf(
 			'<label for="send_public_key">%s</label><textarea id="send_public_key">%s</textarea></div>',
 			esc_html( $this->i18n( 'public_key' ) ),
-			sanitize_textarea_field( $sent['public'] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			esc_html( sanitize_textarea_field( $sent['public'] ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		);
 
 		printf(
 			'<p><label for="sent_public_key_id">%s</label><input id="sent_public_key_id" name="%s[keys][sent][public_key_id]" value="%s" /></p>',
 			esc_html( $this->i18n( 'public_key_id' ) ),
 			esc_attr( $this->option_key ),
-			esc_attr( $sent['public_key_id'] )
+			esc_attr( sanitize_text_field( $sent['public_key_id'] ) )
 		);
 
 		return ob_get_clean();
@@ -1062,14 +1066,14 @@ class Admin_Settings {
 			esc_html( $this->i18n( 'private_key' ) ),
 			esc_attr( $this->option_key ),
 			esc_attr( $this->i18n( 'private_key_source' ) ),
-			sanitize_textarea_field( $receive['private'] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			esc_html( sanitize_textarea_field( $receive['private'] ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		);
 
 		printf(
 			'<p><label for="receive_public_key_id">%s</label><input id="receive_public_key_id" name="%s[keys][receive][public_key_id]" value="%s" /></p>',
 			esc_html( $this->i18n( 'public_key_id' ) ),
 			esc_attr( $this->option_key ),
-			esc_attr( $receive['public_key_id'] )
+			esc_attr( sanitize_text_field($receive['public_key_id'] ) )
 		);
 
 		return ob_get_clean();

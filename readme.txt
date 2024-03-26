@@ -79,6 +79,17 @@ Long-form to display a payment button set to $100.50 for Business Consulting:
 
 [piwa amount="100.50" title="Business Consulting"]
 
+
+**Third-Party Services**
+
+**Pay Invoices with Amazon** integrates with Amazon Payments to process invoice payments made through the plugin.
+**Third-Party Service Links and Policies**
+
+- Amazon Payments Terms of Service: https://pay.amazon.com/help/201212430
+- Amazon Payments Privacy Policy: https://pay.amazon.com/help/201212490
+
+By using the plugin, you acknowledge and consent to the use of Amazon Payments for payment processing. We ensure that all data transmissions are secure and in compliance with legal standards.
+
 == Installation ==
 
 1. Upload the PIWA plugin to your WordPress plugins directory.

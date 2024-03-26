@@ -73,9 +73,12 @@ class Payments {
 	}
 
 	public function get_current_screen() {
+
+        $php_self = filter_input(INPUT_SERVER, 'PHP_SELF', FILTER_SANITIZE_URL);
+
 		if ( empty( $this->current_screen ) ) {
 			$this->current_screen = [
-				'basename'          => basename( $_SERVER['PHP_SELF'] ),
+				'basename'          => basename( $php_self ),
 				'is_this_post_type' => array_key_exists( 'post_type', $_GET ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					? ( self::POST_TYPE === filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_SPECIAL_CHARS ) )
 					: ( array_key_exists( 'post', $_GET ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -292,7 +295,7 @@ Phone: %s',
 				),
 				'post_content' => $post_content,
 				'post_status'  => 'publish',
-				'post_parent'  => array_key_exists( 'ap-payment-id', $_GET ) ? intval( explode( '-', (string) $_GET['ap-payment-id'] )[0] ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				'post_parent'  => array_key_exists( 'ap-payment-id', $_GET ) ? intval( explode( '-', sanitize_text_field( $_GET['ap-payment-id']) )[0] ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			];
 			$payment_id   = wp_insert_post( $payment_args, true );
 
@@ -341,7 +344,7 @@ Phone: %s',
 			'post_title'   => 'Declined',
 			'post_content' => '',
 			'post_status'  => 'pending',
-			'post_parent'  => array_key_exists( 'ap-payment-id', $_GET ) ? intval( explode( '-', (string) $_GET['ap-payment-id'] )[0] ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			'post_parent'  => array_key_exists( 'ap-payment-id', $_GET ) ? intval( explode( '-', sanitize_text_field($_GET['ap-payment-id']) )[0] ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		];
 		$payment_id   = wp_insert_post( $payment_args, true );
 

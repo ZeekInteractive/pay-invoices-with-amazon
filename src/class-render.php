@@ -74,7 +74,7 @@ class Render {
 		$config = [];
 		if ( array_key_exists( 'ap-payment-id', $_GET ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			foreach ( $this->buttons_config as $button_config ) {
-				if ( $_GET['ap-payment-id'] === $button_config['payment_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( sanitize_text_field($_GET['ap-payment-id']) === $button_config['payment_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$config = $button_config;
 				}
 			}
@@ -226,7 +226,7 @@ class Render {
 		) {
 
 			$checkout_session_id                                = sanitize_key( $_GET['amazonCheckoutSessionId'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$payment_source_id                                  = intval( explode( '-', (string) $_GET['ap-payment-id'] )[0] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$payment_source_id                                  = intval( explode( '-', sanitize_text_field($_GET['ap-payment-id']) )[0] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			list( $payment_source_id, $payment_source_counter ) = explode( '-', sanitize_key( $_GET['ap-payment-id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			if (

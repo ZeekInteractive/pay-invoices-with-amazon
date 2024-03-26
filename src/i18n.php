@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 return [
 	'admin_page_title'                    => __( 'Pay Invoices With Amazon', 'piwa' ),
 	'admin_menu_title'                    => __( 'Pay Invoices With Amazon', 'piwa' ),

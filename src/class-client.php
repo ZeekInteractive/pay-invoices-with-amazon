@@ -161,7 +161,7 @@ class Client {
 							// Payment processing will not work if the redirect is HTTP.
 							'http://',
 							'https://',
-							( defined( 'REST_REQUEST' ) && REST_REQUEST ) ? $_SERVER['HTTP_REFERER'] : get_permalink( (int) $atts['invoice_id'] )
+							( defined( 'REST_REQUEST' ) && REST_REQUEST ) ? filter_var($_SERVER['HTTP_REFERER'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : get_permalink( (int) $atts['invoice_id'] )
 						)
 					) . sprintf(
 						'#container-amazon-pay-%d%s',
