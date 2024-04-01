@@ -39,11 +39,13 @@ class Admin_Settings {
 			'https://payments.amazon.com',
 			'https://sellercentral.amazon.com',
 		];
-		if ( in_array( $_SERVER['HTTP_ORIGIN'], $valid_origins, true ) ) {
-			$origin = $_SERVER['HTTP_ORIGIN'];
-		} else {
+
+		$origin = sanitize_url( $_SERVER['HTTP_ORIGIN']);
+
+		if ( !in_array( $origin, $valid_origins, true ) ) {
 			return new \WP_REST_Response( [ 'result' => 'error' ], 400 );
 		}
+
 		header( sprintf( 'Access-Control-Allow-Origin: %s', $origin ) );
 		header( 'Access-Control-Allow-Methods: POST' );
 		header( 'Access-Control-Allow-Headers: Content-Type' );
@@ -526,17 +528,16 @@ class Admin_Settings {
 			],
 		];
 
-		$this->register_option_sanitization_callbacks();
-
 		if (
 			isset( $_POST['action'] )
 			&& 'update' === $_POST['action']
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash ($_POST['_wpnonce'] ) ), sprintf( '%s-options', $this->option_key ) )
 			&& ! empty( $_POST['piwa'] )
 		) {
-            // Before calling update_option we are calling register_option_sanitization_callbacks() to ensure the sanitize callback is registered.
-            // The sanitize method on this class is used to sanitize the options by data type before saving them to the database
-			update_option( $this->option_key, $_POST['piwa'] );
+
+			// Before saving options with run them through the sanitize method to ensure they are sanitized by data type.
+			$sanitizedOptionsArray =  $this->sanitize($_POST['piwa']);
+			update_option( $this->option_key, $sanitizedOptionsArray );
 		}
 
 		add_menu_page(

@@ -1,8 +1,8 @@
 {
   "name": "zeek/piwa",
-  "description": "",
+  "description": "Enables a smooth Amazon Pay integration using the WordPress block editor. Accept payments using Amazon Pay, providing a seamless experience for your customers.",
   "license": "GPLv3",
-  "type": "project",
+  "type": "wordpress-plugin",
   "require": {
     "php": "^5.6 || ^7.3 || ^7.4 || ^8.0 || ^8.1 || ^8.2",
     "amzn/amazon-pay-api-sdk-php": "2.6.3",
