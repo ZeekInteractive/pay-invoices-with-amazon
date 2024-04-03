@@ -77,8 +77,8 @@ class Admin_Settings {
 				$e->getMessage()
 			);
 
-            // Before calling update_option we are calling register_option_sanitization_callbacks() to ensure the sanitize callback is registered.
-            // The sanitize method on this class is used to sanitize the options by data type before saving them to the database
+			// Before calling update_option we are calling register_option_sanitization_callbacks() to ensure the sanitize callback is registered.
+			// The sanitize method on this class is used to sanitize the options by data type before saving them to the database
 			update_option(
 				$this->option_key,
 				array_merge(
@@ -191,59 +191,52 @@ class Admin_Settings {
 						if ( ! array_key_exists( $field_id, (array) $options ) ) {
 							$saved_options[ $field_id ] = '';
 						}else {
-							$saved_options[ $field_id ] = wp_strip_all_tags( $options[ $field_id ] );
+							// sanitizes text area field
+							$saved_options[ $field_id ] = wp_strip_all_tags( sanitize_textarea_field($options[ $field_id ]) );
 						}
 						break;
 					case 'checkbox_field':
 						if ( ! array_key_exists( $field_id, (array) $options ) ) {
 							$saved_options[ $field_id ] = 0;
 						}
-						$saved_options[ $field_id ] = intval( isset( $options[ $field_id ] ) );
+						// sanitizes checkbox field
+						$checkbox_value = sanitize_text_field( $options[ $field_id ] );
+
+						$saved_options[ $field_id ] = intval( !empty($checkbox_value) );
 						break;
 					case 'select_field':
+						// sanitizes select field
+						$select_value = sanitize_text_field( $options[ $field_id ] );
+
 						if (
 							array_key_exists( $field_id, $options )
-							&& in_array( $options[ $field_id ], (array) array_keys( $field['args']['options'] ), true )
+							&& in_array( $select_value, (array) array_keys( $field['args']['options'] ), true )
 						) {
-							$saved_options[ $field_id ] = $options[ $field_id ];
+							$saved_options[ $field_id ] = $select_value;
 						}
 						break;
 					case 'min_max_field':
-						if ( ! array_key_exists( 'min_max', (array) $options ) ) {
-							$saved_options['min_max'] = [
-								'min'              => 1,
-								'max'              => 1000000,
-								'display_feedback' => 'no',
-							];
-							break;
-						}
-						if (
-							array_key_exists( 'min_max', $options )
-							&& is_array( $options['min_max'] )
-							&& array_key_exists( 'min', $options['min_max'] )
-							&& is_numeric( $options['min_max']['min'] )
-							&& array_key_exists( 'max', $options['min_max'] )
-							&& is_numeric( $options['min_max']['max'] )
-						) {
-							$min_float = floatval( $options['min_max']['min'] );
-							$max_float = floatval( $options['min_max']['max'] );
-							if ( $min_float < $max_float ) {
-								// Minimum needs to be at least 1.
-								$min = ( 1 > $min_float ) ? 1 : number_format( $min_float, 0, '.', '' );
-								$max = number_format( $max_float, 0, '.', '' );
+						$min = 1;
+						$max = 1000000;
+						$display_feedback = 'no';
+
+						if (array_key_exists('min_max', $options) && is_array($options['min_max'])) {
+							// sanitizes mix and max fields
+							$min_field = sanitize_text_field($options['min_max']['min']);
+							$max_field = sanitize_text_field($options['min_max']['max']);
+
+							$min = max($min, floatval($min_field ?? $min));
+							$max = floatval($max_field ?? $max);
+
+							if ($min >= $max) { // Ensure $min is less than $max, reset to defaults if not
+								$min = 1;
+								$max = 1000000;
 							}
+
+							$display_feedback = $options['min_max']['display_feedback'] === 'yes' ? 'yes' : 'no';
 						}
-						if (
-							array_key_exists( 'display_feedback', (array) $options['min_max'] )
-							&& 'yes' === $options['min_max']['display_feedback']
-						) {
-							$display_feedback = 'yes';
-						}
-						$saved_options['min_max'] = [
-							'min'              => $min,
-							'max'              => $max,
-							'display_feedback' => $display_feedback,
-						];
+
+						$saved_options['min_max'] = compact('min', 'max', 'display_feedback');
 						break;
 				}
 			}
@@ -932,9 +925,9 @@ class Admin_Settings {
 			'<div class="notice amazon-pay inline"><p>%s</p></div>',
 			( 'success' === $connection['status'] )
 				? wp_kses_post( sprintf( $this->i18n( 'method_connected' ), $this->i18n( 'tab_send_public_key' ) ) )
-					. ( ( 'sent' !== $this->get_option( 'merchant_account' )['connection_type'] )
-						? ' ' . wp_kses_post( $this->i18n( 'save_to_use_method' ) )
-						: ' ' . wp_kses_post( $this->i18n( 'this_is_active_method' ) ) )
+				. ( ( 'sent' !== $this->get_option( 'merchant_account' )['connection_type'] )
+					? ' ' . wp_kses_post( $this->i18n( 'save_to_use_method' ) )
+					: ' ' . wp_kses_post( $this->i18n( 'this_is_active_method' ) ) )
 				: wp_kses_post( sprintf( $this->i18n( 'method_not_connected' ), $this->i18n( 'tab_send_public_key' ) ) ),
 		);
 
@@ -951,9 +944,9 @@ class Admin_Settings {
 			wp_kses_post( $this->i18n( 'yes_delete' ) ),
 			( 'success' === $connection['status'] )
 				? ( ( 'sent' !== $this->get_option( 'merchant_account' )['connection_type'] )
-					? wp_kses_post( $this->i18n( 'save_to_use_method' ) )
-					: wp_kses_post( $this->i18n( 'this_is_active_method' ) )
-				) : ''
+				? wp_kses_post( $this->i18n( 'save_to_use_method' ) )
+				: wp_kses_post( $this->i18n( 'this_is_active_method' ) )
+			) : ''
 		);
 
 		$sent = [
@@ -1008,9 +1001,9 @@ class Admin_Settings {
 			'<div class="notice amazon-pay inline"><p>%s</p></div>',
 			( 'success' === $connection['status'] )
 				? wp_kses_post( sprintf( $this->i18n( 'method_connected' ), $this->i18n( 'tab_receive_public_private_key' ) ) )
-					. ( ( 'receive' !== $this->get_option( 'merchant_account' )['connection_type'] )
-						? ' ' . wp_kses_post( $this->i18n( 'save_to_use_method' ) )
-						: ' ' . wp_kses_post( $this->i18n( 'this_is_active_method' ) ) )
+				. ( ( 'receive' !== $this->get_option( 'merchant_account' )['connection_type'] )
+					? ' ' . wp_kses_post( $this->i18n( 'save_to_use_method' ) )
+					: ' ' . wp_kses_post( $this->i18n( 'this_is_active_method' ) ) )
 				: wp_kses_post( sprintf( $this->i18n( 'method_not_connected' ), $this->i18n( 'tab_receive_public_private_key' ) ) ),
 		);
 
@@ -1027,9 +1020,9 @@ class Admin_Settings {
 			wp_kses_post( $this->i18n( 'yes_delete' ) ),
 			( 'success' === $connection['status'] )
 				? ( ( 'receive' !== $this->get_option( 'merchant_account' )['connection_type'] )
-					? wp_kses_post( $this->i18n( 'save_to_use_method' ) )
-					: wp_kses_post( $this->i18n( 'this_is_active_method' ) )
-				) : ''
+				? wp_kses_post( $this->i18n( 'save_to_use_method' ) )
+				: wp_kses_post( $this->i18n( 'this_is_active_method' ) )
+			) : ''
 		);
 
 		$keys    = (array) $this->get_option( 'keys' );
@@ -1108,9 +1101,9 @@ class Admin_Settings {
 			wp_kses_post( $this->i18n( 'yes_delete' ) ),
 			( 'success' === $connection['status'] )
 				? ( ( 'automatic' !== $this->get_option( 'merchant_account' )['connection_type'] )
-					? wp_kses_post( $this->i18n( 'save_to_use_method' ) )
-					: wp_kses_post( $this->i18n( 'this_is_active_method' ) )
-				) : ''
+				? wp_kses_post( $this->i18n( 'save_to_use_method' ) )
+				: wp_kses_post( $this->i18n( 'this_is_active_method' ) )
+			) : ''
 		);
 	}
 
@@ -1255,17 +1248,17 @@ class Admin_Settings {
 	 */
 	public function output_admin_colors_as_css_vars() {
 		?>
-		:root {
-			<?php
-			foreach ( $this->get_admin_colors() as $key => $admin_color_hex ) {
-				printf(
-					'--admin-color-%d: %s;',
-					sanitize_key( $key ),
-					sanitize_hex_color( $admin_color_hex )
-				);
-			}
-			?>
+        :root {
+		<?php
+		foreach ( $this->get_admin_colors() as $key => $admin_color_hex ) {
+			printf(
+				'--admin-color-%d: %s;',
+				sanitize_key( $key ),
+				sanitize_hex_color( $admin_color_hex )
+			);
 		}
+		?>
+        }
 		<?php
 	}
 
