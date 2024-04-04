@@ -117,14 +117,15 @@ class Admin_Settings {
 
 	private function handle_auto_connect_error($e) {
 
+
+		$message = $this->i18n('auto_connect_could_not_decode');
+
 		// checking for getMessage here because php5.6 does not support union types to allow both Error and Exception
 		if (method_exists($e, 'getMessage')) {
 			$message = sprintf(
 				$this->i18n('auto_connect_could_not_decode'),
 				$e->getMessage()
 			);
-		} else {
-			$message = $this->i18n('auto_connect_could_not_decode');
 		}
 
 		update_option(
