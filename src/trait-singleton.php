@@ -10,9 +10,10 @@ trait Singleton {
 	public $atts = [];
 
 	public static function get_instance(
-		array|int|string|null $atts = [],
-		string $content = '',
-		string|\WP_Block $block_or_tagname = ''
+		// Can't use 'string', or any other primitive types as typehints in PHP versions before 7
+		$atts = [],
+		$content = '',
+		$block_or_tagname = ''
 	) {
 		if ( ! is_object( self::$instance ) ) {
 			self::$instance = new static();

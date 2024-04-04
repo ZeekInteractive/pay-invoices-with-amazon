@@ -71,34 +71,10 @@ class Admin_Settings {
 
 			$payload['publicKeyId'] = $rsa->decrypt( base64_decode( urldecode( $payload['publicKeyId'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 
-		} catch ( \Error | \Exception $e ) {
-			$message = sprintf(
-				$this->i18n( 'auto_connect_could_not_decode' ),
-				$e->getMessage()
-			);
-
-			// Before calling update_option we are calling register_option_sanitization_callbacks() to ensure the sanitize callback is registered.
-			// The sanitize method on this class is used to sanitize the options by data type before saving them to the database
-			update_option(
-				$this->option_key,
-				array_merge(
-					$this->defaults(),
-					(array) get_option( $this->option_key ),
-					[
-						'auto_connect' => [
-							'result'  => 'error',
-							'message' => $message,
-						],
-					]
-				)
-			);
-			return new \WP_REST_Response(
-				[
-					'result'  => 'error',
-					'message' => $message,
-				],
-				400
-			);
+		} catch (\Error  $e ) {
+			return $this->handle_auto_connect_error($e);
+		} catch (\Exception  $e ) {
+			return $this->handle_auto_connect_error($e);
 		}
 
 		$current_options = (array) get_option( $this->option_key );
@@ -137,6 +113,41 @@ class Admin_Settings {
 		);
 
 		return new \WP_REST_Response( [ 'result' => 'success' ], 200 );
+	}
+
+	private function handle_auto_connect_error($e) {
+
+
+		$message = $this->i18n('auto_connect_could_not_decode');
+
+		// checking for getMessage here because php5.6 does not support union types to allow both Error and Exception
+		if (method_exists($e, 'getMessage')) {
+			$message = sprintf(
+				$this->i18n('auto_connect_could_not_decode'),
+				$e->getMessage()
+			);
+		}
+
+		update_option(
+			$this->option_key,
+			array_merge(
+				$this->defaults(),
+				(array) get_option( $this->option_key ),
+				[
+					'auto_connect' => [
+						'result'  => 'error',
+						'message' => $message,
+					],
+				]
+			)
+		);
+		return new \WP_REST_Response(
+			[
+				'result'  => 'error',
+				'message' => $message,
+			],
+			400
+		);
 	}
 
 	/**
@@ -221,12 +232,21 @@ class Admin_Settings {
 						$display_feedback = 'no';
 
 						if (array_key_exists('min_max', $options) && is_array($options['min_max'])) {
-							// sanitizes mix and max fields
-							$min_field = sanitize_text_field($options['min_max']['min']);
-							$max_field = sanitize_text_field($options['min_max']['max']);
 
-							$min = max($min, floatval($min_field ?? $min));
-							$max = floatval($max_field ?? $max);
+							$min_field = null;
+							$max_field = null;
+
+							// sanitizes mix and max fields
+							if(array_key_exists('min', $options['min_max'])) {
+								$min_field = sanitize_text_field($options['min_max']['min']);
+							}
+
+							if(array_key_exists('max', $options['min_max'])) {
+								$max_field = sanitize_text_field($options['min_max']['max']);
+							}
+
+							$min = floatval(isset($min_field) ? $min_field : $min);
+							$max = floatval(isset($max_field) ? $max_field : $max);
 
 							if ($min >= $max) { // Ensure $min is less than $max, reset to defaults if not
 								$min = 1;
@@ -928,7 +948,7 @@ class Admin_Settings {
 				. ( ( 'sent' !== $this->get_option( 'merchant_account' )['connection_type'] )
 					? ' ' . wp_kses_post( $this->i18n( 'save_to_use_method' ) )
 					: ' ' . wp_kses_post( $this->i18n( 'this_is_active_method' ) ) )
-				: wp_kses_post( sprintf( $this->i18n( 'method_not_connected' ), $this->i18n( 'tab_send_public_key' ) ) ),
+				: wp_kses_post( sprintf( $this->i18n( 'method_not_connected' ), $this->i18n( 'tab_send_public_key' ) ) )
 		);
 
 		printf(
@@ -1004,7 +1024,7 @@ class Admin_Settings {
 				. ( ( 'receive' !== $this->get_option( 'merchant_account' )['connection_type'] )
 					? ' ' . wp_kses_post( $this->i18n( 'save_to_use_method' ) )
 					: ' ' . wp_kses_post( $this->i18n( 'this_is_active_method' ) ) )
-				: wp_kses_post( sprintf( $this->i18n( 'method_not_connected' ), $this->i18n( 'tab_receive_public_private_key' ) ) ),
+				: wp_kses_post( sprintf( $this->i18n( 'method_not_connected' ), $this->i18n( 'tab_receive_public_private_key' ) ) )
 		);
 
 		printf(
@@ -1052,7 +1072,7 @@ class Admin_Settings {
 					],
 					'li'   => [],
 				]
-			),
+			)
 		);
 
 		printf(
@@ -1151,7 +1171,7 @@ class Admin_Settings {
 			esc_attr(
 				sprintf(
 					'WordPress %s %s',
-					$wp_version,
+					$wp_version, // $wp_version is defined in version.php on the require above.
 					get_locale()
 				)
 			)
