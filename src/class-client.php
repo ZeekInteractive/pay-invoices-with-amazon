@@ -158,7 +158,7 @@ class Client {
 								: []
 						),
 						str_replace(
-							// Payment processing will not work if the redirect is HTTP.
+						// Payment processing will not work if the redirect is HTTP.
 							'http://',
 							'https://',
 							( defined( 'REST_REQUEST' ) && REST_REQUEST ) ? filter_var($_SERVER['HTTP_REFERER'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : get_permalink( (int) $atts['invoice_id'] )
@@ -299,7 +299,13 @@ class Client {
 			}
 			$checkout_session_response = [];
 			if ( array_key_exists( 'response', $checkout_session ) ) {
-				$checkout_session_response = json_decode( $checkout_session['response'], true, 512, JSON_THROW_ON_ERROR );
+				$checkout_session_response = json_decode( $checkout_session['response'], true, 512 );
+
+				// using json_last_error() to check if the json_decode() failed and throw an exception if it did. We cant use JSON_THROW_ON_ERROR because it's only available in PHP 7.3+
+				if (json_last_error() !== JSON_ERROR_NONE) {
+					throw new \Exception('Failed to decode JSON response from Amazon Pay API');
+				}
+
 			}
 
 			switch ( $status ) {
