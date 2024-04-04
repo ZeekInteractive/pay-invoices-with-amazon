@@ -10,6 +10,7 @@ trait Singleton {
 	public $atts = [];
 
 	public static function get_instance(
+		// Can't use 'string', or any other primitive types as typehints in PHP versions before 7
 		$atts = [],
 		$content = '',
 		$block_or_tagname = ''
