@@ -199,8 +199,13 @@ class Admin_Settings {
 						if ( ! array_key_exists( $field_id, (array) $options ) ) {
 							$saved_options[ $field_id ] = 0;
 						}
+
 						// sanitizes checkbox field
-						$checkbox_value = sanitize_text_field( $options[ $field_id ] );
+                        if ( ! empty( $options[ $field_id ] ) ) {
+                            $checkbox_value = sanitize_text_field( $options[ $field_id ] );
+                        } else {
+                            $checkbox_value = 0;
+                        }
 
 						$saved_options[ $field_id ] = intval( !empty($checkbox_value) );
 						break;
