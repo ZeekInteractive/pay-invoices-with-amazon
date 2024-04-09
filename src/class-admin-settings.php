@@ -233,7 +233,9 @@ class Admin_Settings {
 								$max = 1000000;
 							}
 
-							$display_feedback = $options['min_max']['display_feedback'] === 'yes' ? 'yes' : 'no';
+                            if ( ! empty( $options['min_max']['display_feedback'] ) ) {
+                                $display_feedback = $options['min_max']['display_feedback'] === 'yes' ? 'yes' : 'no';
+                            }
 						}
 
 						$saved_options['min_max'] = compact('min', 'max', 'display_feedback');

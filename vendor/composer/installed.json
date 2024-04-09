@@ -299,6 +299,6 @@
             "install-path": "../phpseclib/phpseclib"
         }
     ],
-    "dev": false,
+    "dev": true,
     "dev-package-names": []
 }
