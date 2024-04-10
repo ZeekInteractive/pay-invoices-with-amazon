@@ -7,10 +7,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Description: Enables a smooth Amazon Pay integration using the WordPress block editor. Accept payments using Amazon Pay, providing a seamless experience for your customers.
  * Author: Zeek
  * Author URI: https://zeek.com/
- * Plugin URI: https://wordpress.org/plugins/piwa/
+ * Plugin URI: https://wordpress.org/plugins/pay-invoices-with-amazon/
  * Contributors: zengy, aaronholbrook, ivande, pdclark
- * Version: 1.3
- * Text Domain: piwa
+ * Version: 1.3.0
+ * Text Domain: pay-invoices-with-amazon
  * Domain Path: /languages
  * Requires at least: 5.6
  * Tested up to: 6.4.1
