@@ -9,8 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Author URI: https://zeek.com/
  * Plugin URI: https://wordpress.org/plugins/pay-invoices-with-amazon/
  * Contributors: zengy, aaronholbrook, ivande, pdclark
- * Version: 1.3.0
- * Text Domain: pay-invoices-with-amazon
+ * Version: 1.3.1
+ * Text Domain: piwa
  * Domain Path: /languages
  * Requires at least: 5.6
  * Tested up to: 6.4.1
