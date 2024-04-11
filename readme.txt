@@ -15,7 +15,7 @@ Domain Path: /languages
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Enables a smooth Amazon Pay integration using the WordPress block editor. Accept payments using Amazon Pay, providing a seamless experience for your customers.
+Enables Amazon Pay integration using the WordPress block editor. Accept payments using Amazon Pay, providing a seamless experience for your customers.
 
 == Description ==
 
