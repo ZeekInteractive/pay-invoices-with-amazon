@@ -4,11 +4,11 @@ Plugin Name: Pay Invoices With Amazon
 Author: Zeek
 Author URI: https://zeek.com/
 Plugin URI: https://github.com/ZeekInteractive/pay-invoices-with-amazon/
-Contributors: zengy, aaronholbrook, ivande, pdclark
-Tags: amazon pay, payments, checkout, online payments, ecommerce, store
-Stable tag: 1.3
+Contributors: zengy, aaronholbrook, ivande, chetmac, pdclark
+Tags: amazon pay, payments, checkout, online payments, ecommerce
+Stable tag: 1.3.2
 Requires at least: 5.6
-Tested up to: 6.4.1
+Tested up to: 6.5.2
 Requires PHP: 5.6.20
 Text Domain: piwa
 Domain Path: /languages

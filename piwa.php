@@ -8,12 +8,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Author: Zeek
  * Author URI: https://zeek.com/
  * Plugin URI: https://wordpress.org/plugins/pay-invoices-with-amazon/
- * Contributors: zengy, aaronholbrook, ivande, pdclark
- * Version: 1.3.1
+ * Contributors: zengy, aaronholbrook, ivande, chetmac, pdclark
+ * Version: 1.3.2
  * Text Domain: piwa
  * Domain Path: /languages
  * Requires at least: 5.6
- * Tested up to: 6.4.1
+ * Tested up to: 6.5.2
  * Requires PHP: 5.6.20
  * License: GPLv3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
